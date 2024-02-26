@@ -19,11 +19,11 @@ class SignUpView(GenericAPIView):
         serializer.save()
         user_data = serializer.data
         user = CustomUser.objects.get(email=user_data['email'])
-        # code = generate_code()
-        # email_body = 'Hi '+user.username+' Use the code below to verify your email \n'+ str(code)
-        # data= {'to_email':user.email, 'email_subject':'Verify your email','username':user.username, 'code': str(code)}
-        # Utlil.send_email(data)
-        # code_verivecation = CodeVerification.objects.create(user=user, code=code)
+        code = generate_code()
+        email_body = 'Hi '+user.username+' Use the code below to verify your email \n'+ str(code)
+        data= {'to_email':user.email, 'email_subject':'Verify your email','username':user.username, 'code': str(code)}
+        Utlil.send_email(data)
+        code_verivecation = CodeVerification.objects.create(user=user, code=code)
         token = RefreshToken.for_user(user)
         tokens = {
             'refresh':str(token),
