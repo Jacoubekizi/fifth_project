@@ -33,8 +33,8 @@ class SignUpView(GenericAPIView):
 
 # End Points for Login User
 class UserLoginApiView(GenericAPIView):
-    permission_classes = (AllowAny, IsVerified)
     serializer_class = LoginSerializer
+    permission_classes = [IsVerified, IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data = request.data)
@@ -49,7 +49,7 @@ class UserLoginApiView(GenericAPIView):
 # End Points for Logout User
 class LogoutAPIView(GenericAPIView):
     serializer_class = UserLogoutSerializer
-    permission_classes = (IsAuthenticated, IsVerified)
+    permission_classes = [IsVerified, IsAuthenticated]
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
