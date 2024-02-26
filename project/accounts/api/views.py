@@ -8,7 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from accounts.utils import Utlil
 from accounts.methodes import *
-
+from .permissions import *
 # End Points for SignUp User
 class SignUpView(GenericAPIView):
     serializer_class  = SignUpSerializer
@@ -33,7 +33,7 @@ class SignUpView(GenericAPIView):
 
 # End Points for Login User
 class UserLoginApiView(GenericAPIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, IsVerified)
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -49,7 +49,7 @@ class UserLoginApiView(GenericAPIView):
 # End Points for Logout User
 class LogoutAPIView(GenericAPIView):
     serializer_class = UserLogoutSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsVerified)
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -92,6 +92,8 @@ class GetCodeResetPassword(APIView):
     
 # End Points For Verified Account To Reset Password
 class VerifyCodeToChangePassword(APIView):
+    permission_classes = [IsVerified, ]
+    
     def post(self, request, user_id):
         code = request.data['code']
         user = CustomUser.objects.get(id=user_id)
@@ -109,29 +111,24 @@ class VerifyCodeToChangePassword(APIView):
 # End Points For Reset Password
 class ResetPasswordView(UpdateAPIView):
     serializer_class = ResetPasswordSerializer
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny, IsVerified, PermissionResetPassword]
 
     def put(self, request, user_id):
         user = CustomUser.objects.get(id=user_id)
         code = CodeVerification.objects.filter(user=user).first()
-        if code.is_verified:
-            data = request.data
-            serializer = self.get_serializer(data=data, context={'user_id':user_id})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            code.is_verified=False
-            code.save()
-            messages = {
-                'message':'تم تغيير كلمة المرور بنجاح'
-            }
-            return Response(messages, status=status.HTTP_200_OK)
-        
-        else:
-            return Response({'error':'ليس لديك صلاحية لتغيير كلمة المرور'})
+        serializer = self.get_serializer(data=request.data, context={'user_id':user_id})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        code.is_verified=False
+        code.save()
+        messages = {
+            'message':'تم تغيير كلمة المرور بنجاح'
+        }
+        return Response(messages, status=status.HTTP_200_OK)
 
 # End Points For Update Image     
 class UpdateImageUserView(UpdateAPIView):
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, IsVerified]
     def put(self, requset, user_id):
         user = CustomUser.objects.get(id=user_id)
         serializer = UpdateUserSerializer(user, data=requset.data, many=False, context={'request':requset})
@@ -146,6 +143,6 @@ class UpdateImageUserView(UpdateAPIView):
 
 # End Point For List Information User
 class ListInformationUserView(RetrieveAPIView):
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, IsVerified]
     queryset = CustomUser.objects.all()
     serializer_class= CustomUserSerializer
