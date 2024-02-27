@@ -14,8 +14,15 @@ class PermissionResetPassword(BasePermission):
     def has_permission(self, request, view):
         user_id = view.kwargs.get('user_id', None)
         code_verification = CodeVerification.objects.filter(user__id=user_id).first()
-        print(code_verification.is_verified)
         if not code_verification.is_verified:
             print(code_verification)
             raise PermissionDenied("ليس لديك الصلاحية بتغيير كلمة المرور")
+        return True
+
+class HaveCodeVerifecation(BasePermission):
+    def has_permission(self, request, view):
+        user_id = view.kwargs.get('user_id', None)
+        code_verification = CodeVerification.objects.filter(user__id=user_id).first()
+        if not code_verification:
+            raise PermissionDenied("الرجاء طلب رمز التحقق والمحاولة من جديد")
         return True
