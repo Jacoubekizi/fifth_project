@@ -64,22 +64,19 @@ class ResetPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        password = attrs.get('password', '')
-        newpassword = attrs.get('newpassword', '')
-        validate_password(password)
-        validate_password(newpassword)
-        if password != newpassword:
-            raise serializers.ValidationError({'message_error':'كلمات المرور لم تتطابق'})
-        
+        if attrs['password'] != attrs['newpassword']:
+            raise serializers.ValidationError({'message_error':'Passwords do not match.'})
+        validate_password(attrs['newpassword'])
         return attrs
-    
-    def save(self, **kwargs):
-        user_id = self.context.get('user_id')
-        user = CustomUser.objects.get(id=user_id)
-        password = self.validated_data['newpassword']
-        user.set_password(password)
-        user.save()
-        return user
+
+    def update(self, instance, validated_data):
+        pk = self.context.get('pk')
+        instance = CustomUser.objects.get(pk=pk)
+        instance.set_password(validated_data['newpassword'])
+        instance.save()
+        code = CodeVerification.objects.filter(user=instance).first()
+        code.delete()
+        return instance
     
 # Handel Seriailzer For Update Image
 class UpdateUserSerializer(serializers.ModelSerializer):
@@ -87,10 +84,10 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['image']
 
-    def update(self, instance, validated_data):
-        instance.image = validated_data['image']
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     instance.image = validated_data['image']
+    #     instance.save()
+    #     return instance
     
 # Handel Seriailzer For List Information User
 class CustomUserSerializer(serializers.ModelSerializer):

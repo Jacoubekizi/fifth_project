@@ -60,10 +60,10 @@ class LogoutAPIView(GenericAPIView):
 # End Points For Verified Account
 class VerifyAccount(APIView):
     permission_classes = [HaveCodeVerifecation,]
-    
-    def put(self, request, user_id):
+
+    def put(self, request, pk):
         code = request.data['code']
-        user = CustomUser.objects.get(id=user_id)
+        user = CustomUser.objects.get(id=pk)
         code_ver = CodeVerification.objects.filter(user=user.id).first()
         if code_ver:
             if str(code) == str(code_ver.code):
@@ -73,8 +73,8 @@ class VerifyAccount(APIView):
                 user.save()
                 code_ver.delete()
                 return Response({"message":'verification account hass been seccessfuly', 'user_id':user.id},status=status.HTTP_200_OK)
-        else:
-            return Response({'message':'الرمز خاطئ, يرجى إعادة إدخال الرمز بشكل صحيح'})
+            else:
+                return Response({'message':'الرمز خاطئ, يرجى إعادة إدخال الرمز بشكل صحيح'})
 
 # End Points For Get Code To Reset Password
 class GetCodeResetPassword(APIView):
@@ -97,15 +97,17 @@ class GetCodeResetPassword(APIView):
 # End Points For Verified Account To Reset Password
 class VerifyCodeToChangePassword(APIView):
     permission_classes = [HaveCodeVerifecation, IsVerified, ]
+
+    def get_permissions(self):
+        self.request.pk = self.kwargs.get('pk') # Pass the pk to the request
+        return super().get_permissions()
     
-    def post(self, request, user_id):
+    def post(self, request, pk):
         code = request.data['code']
-        user = CustomUser.objects.get(id=user_id)
+        user = CustomUser.objects.get(id=pk)
         code_ver = CodeVerification.objects.filter(user=user.id).first()
-        print(code_ver)
         if code_ver:
             if str(code) == str(code_ver.code):
-                print(code_ver)
                 if timezone.now() > code_ver.expires_at:
                     return Response({"message":"Verification code has expired"}, status=status.HTTP_400_BAD_REQUEST)
                 code_ver.is_verified = True
@@ -116,38 +118,64 @@ class VerifyCodeToChangePassword(APIView):
         
 # End Points For Reset Password
 class ResetPasswordView(UpdateAPIView):
+    queryset = CustomUser.objects.all()
     serializer_class = ResetPasswordSerializer
     permission_classes = [AllowAny, IsVerified, HaveCodeVerifecation, PermissionResetPassword]
 
-    def put(self, request, user_id):
-        user = CustomUser.objects.get(id=user_id)
-        try :
-            code = CodeVerification.objects.filter(user=user).first()
-            serializer = self.get_serializer(data=request.data, context={'user_id':user_id})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            code.delete()
-            messages = {
-                'message':'تم تغيير كلمة المرور بنجاح'
-            }
-            return Response(messages, status=status.HTTP_200_OK)
-        except:
-            return Response("ليس لديك الصلاحية بتغيير كلمة المرور")
+    def get_permissions(self):
+        self.request.pk = self.kwargs.get('pk')
+        return super().get_permissions()
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['pk']=self.kwargs.get('pk')
+        return context
+
+    # def get_queryset(self):
+    #     pk = self.kwargs.get('pk')
+    #     user = CustomUser.objects.get(id=pk)
+    #     return self.get_serializer(user, many=False)
+    
+    # def put(self, request, pk):
+    #     user = CustomUser.objects.get(pk=pk)
+    #     try :
+    #         code = CodeVerification.objects.filter(user=user).first()
+    #         serializer = self.get_serializer(data=request.data)
+    #         serializer.is_valid(raise_exception=True)
+    #         serializer.save()
+    #         code.delete()
+    #         messages = {
+    #             'message':'تم تغيير كلمة المرور بنجاح'
+    #         }
+    #         return Response(messages, status=status.HTTP_200_OK)
+    #     except:
+    #         return Response("ليس لديك الصلاحية بتغيير كلمة المرور")
 
 # End Points For Update Image     
 class UpdateImageUserView(UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UpdateUserSerializer
     permission_classes = [IsAuthenticated, IsVerified]
-    def put(self, requset, user_id):
-        user = CustomUser.objects.get(id=user_id)
-        serializer = UpdateUserSerializer(user, data=requset.data, many=False, context={'request':requset})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {'success':"The Profile Image has been changed successfully.",
-                 'image' : serializer.data},
-                status=status.HTTP_200_OK
-            )
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        user = self.get_queryset().get(pk=pk)
+        # serializer = self.get_serializer(user, data=self.request.data, many=False)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.save()
+        
+        return self.get_queryset().get(pk=pk)
+    # def put(self, requset, user_id):
+    #     user = CustomUser.objects.get(id=user_id)
+    #     serializer = UpdateUserSerializer(user, data=requset.data, many=False, context={'request':requset})
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(
+    #             {'success':"The Profile Image has been changed successfully.",
+    #              'image' : serializer.data},
+    #             status=status.HTTP_200_OK
+    #         )
+    #     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 # End Point For List Information User
 class ListInformationUserView(RetrieveAPIView):
