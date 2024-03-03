@@ -12,10 +12,9 @@ from .permissions import *
 
 # End Points for SignUp User
 class SignUpView(APIView):
-    serializer_class  = SignUpSerializer
     def post(self, request):
         user_information = request.data
-        serializer = self.get_serializer(data=user_information)
+        serializer = SignUpSerializer(data=user_information)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
@@ -34,10 +33,10 @@ class SignUpView(APIView):
 
 # End Points for Login User
 class UserLoginApiView(APIView):
-    serializer_class = LoginSerializer
+    # serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data = request.data)
+        serializer = LoginSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
         user = CustomUser.objects.get(email = request.data['username'])
         token = RefreshToken.for_user(user)
@@ -61,9 +60,13 @@ class LogoutAPIView(APIView):
 class VerifyAccount(APIView):
     permission_classes = [HaveCodeVerifecation,]
 
+    def get_permissions(self):
+        self.request.pk = self.kwargs.get('pk') # Pass the pk to the request
+        return super().get_permissions()
+    
     def put(self, request, pk):
         code = request.data['code']
-        user = CustomUser.objects.get(id=pk)
+        user = CustomUser.objects.get(pk=pk)
         code_ver = CodeVerification.objects.filter(user=user.id).first()
         if code_ver:
             if str(code) == str(code_ver.code):
@@ -78,13 +81,18 @@ class VerifyAccount(APIView):
 
 # End Points For Get Code To Reset Password
 class GetCodeResetPassword(APIView):
+
+    def get_permissions(self):
+        self.request.pk = self.kwargs.get('pk') # Pass the pk to the request
+        return super().get_permissions()
+    
     def post(self, request):
         email = request.data['email']
         try: 
             user = get_object_or_404(CustomUser, email=email)
-            existing_code = CodeVerification.objects.filter(user=user).first()
-            if existing_code:
-                existing_code.delete()
+            # existing_code = CodeVerification.objects.filter(user=user).first()
+            # if existing_code:
+            #     existing_code.delete()
             code_verivecation = generate_code()
             data= {'to_email':user.email, 'email_subject':'Verify your email','username':user.username, 'code': str(code_verivecation)}
             Utlil.send_email(data)
@@ -96,7 +104,7 @@ class GetCodeResetPassword(APIView):
     
 # End Points For Verified Account To Reset Password
 class VerifyCodeToChangePassword(APIView):
-    permission_classes = [HaveCodeVerifecation, IsVerified, ]
+    permission_classes = [ IsVerified, HaveCodeVerifecation, ]
 
     def get_permissions(self):
         self.request.pk = self.kwargs.get('pk') # Pass the pk to the request
@@ -163,6 +171,6 @@ class UpdateImageUserView(UpdateAPIView):
 
 # End Point For List Information User
 class ListInformationUserView(RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     queryset = CustomUser.objects.all()
     serializer_class= CustomUserSerializer

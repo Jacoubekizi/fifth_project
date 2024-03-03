@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #internal apps
     'accounts',
+    'charts',
     #external models
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
