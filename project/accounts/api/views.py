@@ -11,7 +11,7 @@ from accounts.methodes import *
 from .permissions import *
 
 # End Points for SignUp User
-class SignUpView(GenericAPIView):
+class SignUpView(APIView):
     serializer_class  = SignUpSerializer
     def post(self, request):
         user_information = request.data
@@ -33,7 +33,7 @@ class SignUpView(GenericAPIView):
         return Response({'information_user':user_data,'tokens':tokens})
 
 # End Points for Login User
-class UserLoginApiView(GenericAPIView):
+class UserLoginApiView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -47,7 +47,7 @@ class UserLoginApiView(GenericAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 # End Points for Logout User
-class LogoutAPIView(GenericAPIView):
+class LogoutAPIView(APIView):
     serializer_class = UserLogoutSerializer
     permission_classes = [IsAuthenticated, IsVerified]
 
@@ -159,23 +159,7 @@ class UpdateImageUserView(UpdateAPIView):
 
     def get_object(self):
         pk = self.kwargs.get('pk')
-        user = self.get_queryset().get(pk=pk)
-        # serializer = self.get_serializer(user, data=self.request.data, many=False)
-        # serializer.is_valid(raise_exception=True)
-        # serializer.save()
-        
         return self.get_queryset().get(pk=pk)
-    # def put(self, requset, user_id):
-    #     user = CustomUser.objects.get(id=user_id)
-    #     serializer = UpdateUserSerializer(user, data=requset.data, many=False, context={'request':requset})
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(
-    #             {'success':"The Profile Image has been changed successfully.",
-    #              'image' : serializer.data},
-    #             status=status.HTTP_200_OK
-    #         )
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 # End Point For List Information User
 class ListInformationUserView(RetrieveAPIView):

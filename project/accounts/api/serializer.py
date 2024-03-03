@@ -83,11 +83,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['image']
-
-    # def update(self, instance, validated_data):
-    #     instance.image = validated_data['image']
-    #     instance.save()
-    #     return instance
     
 # Handel Seriailzer For List Information User
 class CustomUserSerializer(serializers.ModelSerializer):
