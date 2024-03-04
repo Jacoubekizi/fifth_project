@@ -7,18 +7,22 @@ from accounts.methodes import *
 
 # Handel Seriailzer For SignUp
 class SignUpSerializer(serializers.ModelSerializer):
-
+    confpassword = serializers.CharField(write_only = True)
     class Meta:
         model = CustomUser
-        fields = ['phonenumber','email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'confpassword']
         extra_kwargs = {
             'password':{'write_only':True,}
         }
     def validate(self, validated_data):
         validate_password(validated_data['password'])
+        validate_password(validated_data['confpassword'])
+        if validated_data['password'] != validated_data['confpassword'] :
+            raise serializers.ValidationError("password and confpassword didn't match")
         return validated_data
 
     def create(self, validated_data):
+        validated_data.pop('confpassword', None)
         return CustomUser.objects.create_user(**validated_data)
     
 

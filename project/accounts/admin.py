@@ -7,12 +7,12 @@ from .forms import CustomUserCreationForm, CustomUserChangeForm
 class AdminCustomUser(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
-    list_display = ['id', 'email', 'phonenumber','username', 'is_verified']    
+    list_display = ['id', 'email','username', 'is_verified']    
     ordering = ['-id']
 
     fieldsets = (
         (None, 
-                {'fields':('phonenumber','email', 'password',)}
+                {'fields':('email', 'password',)}
             ),
             ('User Information',
                 {'fields':('username', 'first_name', 'last_name','image')}
@@ -28,7 +28,7 @@ class AdminCustomUser(UserAdmin):
     add_fieldsets = (
         (None, {'classes':('wide',),
             'fields':(
-                'phonenumber','email' , 'username', 'password1', 'password2',
+                'email' , 'username', 'password1', 'confpassword',
             ),}
             ),
     )
