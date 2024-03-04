@@ -5,11 +5,18 @@ from accounts.models import *
 class IsVerified(BasePermission):
     def has_permission(self, request, view):
         user_id = view.kwargs.get('pk', None)
-        user = CustomUser.objects.filter(id=user_id).first()
-        if not user.is_verified:
-            raise PermissionDenied("الحساب غير مؤكد الرجاء تأكيد الحساب والمحاولة من جديد")
-        return True
-    
+        if user_id:
+            user = CustomUser.objects.filter(id=user_id).first()
+            if not user.is_verified:
+                raise PermissionDenied('this account is not verified')
+            return True
+        else:
+            user_ = request.user.id
+            user = CustomUser.objects.filter(id=user_).first()
+            if not user.is_verified:
+                raise PermissionDenied('this account is not verified')
+            return True
+
 class PermissionResetPassword(BasePermission):
     def has_permission(self, request, view):
         user_id = request.pk

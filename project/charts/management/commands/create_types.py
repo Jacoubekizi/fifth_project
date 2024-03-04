@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = "create expense types"
     def handle(self, *args, **options):
         Expense_Type.objects.bulk_create(
-[            Expense_Type(expense_name='Medicin'),
+[           Expense_Type(expense_name='Medicin'),
             Expense_Type(expense_name='Transport'),
             Expense_Type(expense_name='Cloths'),
             Expense_Type(expense_name='House & Renovation'),

@@ -5,9 +5,11 @@ from rest_framework.response import Response
 from accounts.methodes import *
 from django.db.models import Sum , F
 from django.db.models.functions import ExtractMonth
-
+from accounts.api.permissions import IsVerified
+from rest_framework.permissions import IsAuthenticated
 
 class PieChart(APIView): 
+    # permission_classes = (IsAuthenticated, IsVerified)
     def get(self,request,year):
         grouped_expenses = Item.objects.filter(time_purchased__year=year)\
                                         .values("expense_type__expense_name")\
@@ -17,8 +19,8 @@ class PieChart(APIView):
         return Response(serializer.data)
 
 
-
 class LineChart(APIView):
+    # permission_classes = (IsAuthenticated, IsVerified)
     def get(self,request, year):
         grouped_expenses = Item.objects.filter(time_purchased__year=year).\
                                         annotate(item_price=F("price")).\

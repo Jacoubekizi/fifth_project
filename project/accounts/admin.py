@@ -7,7 +7,7 @@ from .forms import CustomUserCreationForm, CustomUserChangeForm
 class AdminCustomUser(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
-    list_display = ['id', 'email', 'phonenumber','username', 'is_staff']    
+    list_display = ['id', 'email', 'phonenumber','username', 'is_verified']    
     ordering = ['-id']
 
     fieldsets = (

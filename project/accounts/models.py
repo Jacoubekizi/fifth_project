@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from .methodes import *
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(max_length=50, unique=True,null=True,blank=True)
+    email = models.EmailField(max_length=50, unique=True)
     phonenumber = PhoneNumberField(region='SY',unique=True)
     username = models.CharField(max_length=200)
     is_verified = models.BooleanField(default=False)
