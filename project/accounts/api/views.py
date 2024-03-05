@@ -48,7 +48,7 @@ class UserLoginApiView(APIView):
 # End Points for Logout User
 class LogoutAPIView(APIView):
     serializer_class = UserLogoutSerializer
-    permission_classes = [IsAuthenticated, IsVerified]
+    permission_classes = [IsAuthenticated,]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -104,7 +104,7 @@ class GetCodeResetPassword(APIView):
     
 # End Points For Verified Account To Reset Password
 class VerifyCodeToChangePassword(APIView):
-    permission_classes = [ IsVerified, HaveCodeVerifecation, ]
+    permission_classes = [HaveCodeVerifecation, ]
 
     def get_permissions(self):
         self.request.pk = self.kwargs.get('pk') # Pass the pk to the request
@@ -128,7 +128,7 @@ class VerifyCodeToChangePassword(APIView):
 class ResetPasswordView(UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ResetPasswordSerializer
-    permission_classes = [AllowAny, IsVerified, HaveCodeVerifecation, PermissionResetPassword]
+    permission_classes = [AllowAny, HaveCodeVerifecation, PermissionResetPassword]
 
     def get_permissions(self):
         self.request.pk = self.kwargs.get('pk')
@@ -163,7 +163,7 @@ class ResetPasswordView(UpdateAPIView):
 class UpdateImageUserView(UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UpdateUserSerializer
-    permission_classes = [IsAuthenticated, IsVerified]
+    permission_classes = [IsAuthenticated,]
 
     def get_object(self):
         pk = self.kwargs.get('pk')
@@ -171,6 +171,6 @@ class UpdateImageUserView(UpdateAPIView):
 
 # End Point For List Information User
 class ListInformationUserView(RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsVerified]
+    permission_classes = [IsAuthenticated,]
     queryset = CustomUser.objects.all()
     serializer_class= CustomUserSerializer
