@@ -4,10 +4,9 @@ from rest_framework_simplejwt.tokens import TokenError, RefreshToken
 from django.contrib.auth import  authenticate
 from django.contrib.auth.password_validation import validate_password
 from accounts.methodes import *
-import calendar
 
 
-# Handel Seriailzer For SignUp
+##### sign up serializer #####
 class SignUpSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
     class Meta:
@@ -31,7 +30,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     
 
 
-# Handel Seriailzer For Login
+##### login serializer #####
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only = True)
@@ -54,7 +53,7 @@ class LoginSerializer(serializers.Serializer):
         data['user'] = user
         return data
     
-# Handel Seriailzer For Logout
+##### logout serializer #####
 class UserLogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
     def validate(self, attrs):
@@ -67,7 +66,7 @@ class UserLogoutSerializer(serializers.Serializer):
             self.fail('bad_token')
 
 
-# Handel Seriailzer For Reset Password
+##### reset password serializer #####
 class ResetPasswordSerializer(serializers.Serializer):
     newpassword = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
@@ -86,22 +85,12 @@ class ResetPasswordSerializer(serializers.Serializer):
         code = CodeVerification.objects.filter(user=instance).first()
         code.delete()
         return instance
-    
-# Handel Seriailzer For Update Image
-class UpdateUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['image']
 
-    # def update(self, instance, validated_data):
-    #     instance.image = validated_data['image']
-    #     instance.save()
-    #     return instance
-    
+
 # Handel Seriailzer For List Information User
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'username', 'phonenumber', 'image']
+        fields = ['id', 'email', 'username', 'image']
 
 

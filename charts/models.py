@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import CustomUser
 
 
 
@@ -10,6 +11,7 @@ class Expense_Type(models.Model):
 
 
 class Item(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     item_name = models.CharField(max_length = 100)
     price = models.IntegerField(default=0)
     time_purchased = models.DateTimeField(auto_now_add=True)

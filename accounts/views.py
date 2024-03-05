@@ -1,15 +1,14 @@
 from rest_framework.generics import *
 from rest_framework.views import APIView
 from rest_framework.permissions import *
-from .serializer import *
+from .serializers import *
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from utils.email import Util
 from .methodes import *
 from .permissions import *
-from django.db.models import Sum , F
-from django.db.models.functions import ExtractMonth
+
 
 
 ##### sign-up users #####
