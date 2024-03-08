@@ -16,3 +16,9 @@ class ItemsPerMonthSerializer(serializers.Serializer):
 
     def get_month_name(self, obj):
         return calendar.month_name[obj['month']]
+    
+class ItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Item
+        exclude = ['client', 'expense_type']

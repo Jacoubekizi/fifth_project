@@ -7,6 +7,7 @@ from django.db.models import Sum , F
 from django.db.models.functions import ExtractMonth
 from accounts.api.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListCreateAPIView
 
 class PieChart(APIView): 
     permission_classes = (IsAuthenticated,)
@@ -31,3 +32,17 @@ class LineChart(APIView):
                                         values("month", "sum").order_by("month")
         serializer = ItemsPerMonthSerializer(grouped_expenses, many=True)
         return Response(serializer.data)
+    
+class CreateItem(ListCreateAPIView):
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        user = CustomUser.objects.get(id=self.request.user.id)
+        expense_type = Expense_Type.objects.get(expense_name=self.request.data['expense_type'])
+        serializer.save(client=user, expense_type=expense_type)
+
+    def get_queryset(self):
+        date = timezone.now().today()
+        return Item.objects.filter(time_purchased__date=date)
