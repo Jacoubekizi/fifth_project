@@ -7,7 +7,7 @@ from django.db.models import Sum , F
 from django.db.models.functions import ExtractMonth
 from accounts.api.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 class PieChart(APIView): 
     permission_classes = (IsAuthenticated,)
@@ -46,3 +46,13 @@ class CreateItem(ListCreateAPIView):
     def get_queryset(self):
         date = timezone.now().today()
         return Item.objects.filter(time_purchased__date=date)
+    
+class RetUpdDesView(RetrieveUpdateDestroyAPIView):
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def perform_update(self, serializer):
+        user = CustomUser.objects.get(id=self.request.user.id)
+        expense_type = Expense_Type.objects.get(expense_name=self.request.data['expense_type'])
+        serializer.save(client=user, expense_type=expense_type)
