@@ -146,3 +146,7 @@ class ListInformationUserView(RetrieveAPIView):
 
 
 
+
+class UserAccount(ListCreateAPIView):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer

@@ -1,21 +1,45 @@
 from django.db import models
-from accounts.models import CustomUser
+from accounts.models import Account
+
+
+class ExpenseCategory(models.Model):
+    name = models.CharField(max_length=80)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 
-class Expense_Type(models.Model):
-    expense_name = models.CharField(max_length=80)
+class ExpenseSubCategory(models.Model):
+    category = models.ForeignKey(ExpenseCategory,on_delete=models.CASCADE)
+    name = models.CharField(max_length=60)
+    created = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.expense_name
+    def __str__(self) -> str:
+        return self.name
+
 
 
 class Item(models.Model):
-    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
+    account = models.ForeignKey(Account,on_delete=models.CASCADE)
     item_name = models.CharField(max_length = 100)
     price = models.IntegerField(default=0)
-    time_purchased = models.DateTimeField(auto_now_add=True)
-    expense_type = models.ForeignKey(Expense_Type,on_delete=models.SET_NULL,null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    subcategory = models.ForeignKey(ExpenseSubCategory,on_delete=models.SET_NULL,null=True)
 
-    def __str__(self):   
-        return f'{self.item_name} : {self.price}'
+    def __str__(self) -> str:
+        return self.item_name
+    
+
+
+class UpcomingPayment(models.Model):
+    account = models.ForeignKey(Account,on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    price = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+    date = models.DateField()
+    subcategory = models.ForeignKey(ExpenseSubCategory,on_delete=models.SET_NULL,null=True)
+
+    def __str__(self) -> str:
+        return self.name

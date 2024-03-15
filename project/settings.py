@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'accounts',
     'charts',
     #external models
+    'django_filters',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'phonenumber_field'

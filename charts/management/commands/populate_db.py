@@ -2,7 +2,7 @@ import random
 from datetime import datetime, timedelta
 import pytz
 from django.core.management.base import BaseCommand
-from charts.models import Item , Expense_Type
+from charts.models import Item , ExpenseSubCategory
 from accounts.models import CustomUser
 
 class Command(BaseCommand):
@@ -10,10 +10,10 @@ class Command(BaseCommand):
     def add_arguments(self,parser):
         parser.add_argument("--amount", type=int, help="The number of items that should be created.")
     def handle(self, *args, **options):
-        types = list(Expense_Type.objects.all())
-
+        types = list(ExpenseSubCategory.objects.all())
+        
         amount = options["amount"] if options["amount"] else 500
-        user = CustomUser.objects.get(id=1)
+        user = CustomUser.objects.get(id=3)
 
         for i in range(0,amount):
             dt = pytz.utc.localize(datetime.now() - timedelta(days = random.randint(0 , 1825)))
@@ -21,9 +21,9 @@ class Command(BaseCommand):
                 user = user,
                 item_name = str(f'item {i}'),
                 price = random.randrange(500,50000,50),
-                expense_type = random.choice(types)
+                subcategory = random.choice(types)
             )
-            expense.time_purchased = dt
+            expense.created = dt
             expense.save()
 
         self.stdout.write(self.style.SUCCESS("Successfully populated the database."))

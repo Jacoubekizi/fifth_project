@@ -94,3 +94,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'username', 'image']
 
 
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = '__all__'
