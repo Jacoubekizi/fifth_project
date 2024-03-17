@@ -14,7 +14,7 @@ class Item(models.Model):
     item_name = models.CharField(max_length = 100)
     quantity = models.IntegerField(default=1)
     price = models.IntegerField()
-    time_purchased = models.DateTimeField(auto_now_add=True)
+    time_purchased = models.DateField(auto_now_add=True)
     expense_type = models.ForeignKey(Expense_Type,on_delete=models.SET_NULL,null=True)
 
     def __str__(self):   

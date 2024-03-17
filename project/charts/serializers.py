@@ -21,13 +21,14 @@ class ItemSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField(read_only=True)
     user = serializers.CharField(source='client.username', read_only=True)
     expense_name = serializers.CharField(source='expense_type.expense_name', read_only=True)
+    time_purchased = serializers.DateField(read_only=True)
 
     class Meta:
         model = Item
         exclude = ['client', 'expense_type']
 
     def get_total_price(self, obj):
-        date = timezone.now().today()
-        return Item.objects.filter(time_purchased__date=date).\
+        date = timezone.now().today().day
+        return Item.objects.filter(time_purchased__day=date).\
             aggregate(total_price=Sum('price'))['total_price'] or 0
         
